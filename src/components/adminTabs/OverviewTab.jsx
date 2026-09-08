@@ -3,7 +3,7 @@ import { useGym } from '../../context/GymContext';
 import { 
   Users, CreditCard, Activity, Clock, ShieldAlert, ArrowUpRight, Plus, 
   Fingerprint, MessageSquare, AlertCircle, TrendingUp, BarChart3, Zap, 
-  Flame, CheckCircle2, ShieldCheck, Sparkles 
+  Flame, CheckCircle2, ShieldCheck, Sparkles, Eye, EyeOff 
 } from 'lucide-react';
 
 export default function OverviewTab() {
@@ -12,6 +12,7 @@ export default function OverviewTab() {
   const [attendanceView, setAttendanceView] = useState('weekly'); // 'weekly' | 'peak'
   const [hoveredDay, setHoveredDay] = useState(null);
   const [hoveredMonth, setHoveredMonth] = useState(null);
+  const [showRevenue, setShowRevenue] = useState(false); // Eye toggle to hide/show revenue for privacy
 
   const totalMembers = data.members.length;
   const activeMembers = data.members.filter(m => m.status === 'Active').length;
@@ -187,7 +188,9 @@ export default function OverviewTab() {
           <div>
             <p style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Expiring Members</p>
             <h3 style={{ fontSize: '1.6rem', color: '#f9fafb' }}>{expiringMembers}</h3>
-            <span style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: '600' }}>Pending Dues: {formattedPendingDues}</span>
+            <span style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: '600' }}>
+              Pending Dues: {showRevenue ? formattedPendingDues : '₹ ••••••'}
+            </span>
           </div>
         </div>
 
@@ -203,7 +206,7 @@ export default function OverviewTab() {
         </div>
       </div>
 
-      {/* ===== ROW 1: PRIMARY CHARTS (Attendance Analytics + Revenue Trajectory) ===== */}
+      {/* ===== ROW 1: Attendance Analytics + Membership Health Ratio (SWAPPED AS REQUESTED) ===== */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px', marginBottom: '28px' }}>
         
         {/* CHART 1: Gym Attendance & Check-in Footfall */}
@@ -393,107 +396,7 @@ export default function OverviewTab() {
           )}
         </div>
 
-        {/* CHART 2: Revenue & Collections Growth Trajectory */}
-        <div className="graph-card">
-          <div className="graph-header">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CreditCard size={18} color="#38bdf8" />
-                <h3 style={{ fontSize: '1.15rem', color: '#f9fafb', margin: 0 }}>Revenue & Fee Collections</h3>
-              </div>
-              <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>
-                Monthly fee receipts and store billing trajectory
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <span style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block' }}>Total Collections</span>
-              <strong style={{ fontSize: '1.3rem', color: '#38bdf8', fontWeight: '800' }}>
-                {formattedTotalRevenue}
-              </strong>
-            </div>
-          </div>
-
-          {/* Monthly Bar Columns */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '160px', gap: '12px', padding: '10px 0' }}>
-            {monthlyRevenueData.map((item, i) => {
-              const heightPct = Math.min(100, Math.max(18, Math.round((item.amount / maxRevenueAmount) * 100)));
-              const isHovered = hoveredMonth === i;
-              const isCurrent = i === monthlyRevenueData.length - 1;
-
-              return (
-                <div
-                  key={i}
-                  className="graph-bar-col"
-                  onMouseEnter={() => setHoveredMonth(i)}
-                  onMouseLeave={() => setHoveredMonth(null)}
-                >
-                  {/* Amount Indicator on hover */}
-                  <div style={{
-                    fontSize: '0.72rem',
-                    color: isCurrent ? '#38bdf8' : '#9ca3af',
-                    fontWeight: '700',
-                    transition: 'transform 0.2s',
-                    transform: isHovered ? 'scale(1.15)' : 'scale(1)'
-                  }}>
-                    ₹{(item.amount / 1000).toFixed(1)}k
-                  </div>
-
-                  <div
-                    className="graph-bar-track"
-                    style={{
-                      background: isHovered ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.04)',
-                      borderColor: isCurrent ? 'rgba(56, 189, 248, 0.3)' : 'transparent'
-                    }}
-                  >
-                    <div
-                      className="graph-bar-fill"
-                      style={{
-                        height: `${heightPct}%`,
-                        background: isCurrent
-                          ? 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)'
-                          : isHovered
-                            ? 'linear-gradient(180deg, #38bdf8 0%, #0369a1 100%)'
-                            : 'linear-gradient(180deg, rgba(56, 189, 248, 0.6) 0%, rgba(2, 132, 199, 0.4) 100%)',
-                        boxShadow: isCurrent ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none'
-                      }}
-                    />
-                  </div>
-
-                  <span style={{
-                    fontSize: '0.78rem',
-                    color: isCurrent ? '#38bdf8' : '#9ca3af',
-                    fontWeight: isCurrent ? '700' : '500'
-                  }}>
-                    {item.month}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Bottom Insights */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ color: '#34d399', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              <TrendingUp size={14} /> +24.8% MoM Growth
-            </span>
-            <span style={{ color: '#9ca3af' }}>
-              Pending Dues: <strong style={{ color: '#fca5a5' }}>{formattedPendingDues}</strong>
-            </span>
-            <button
-              onClick={() => setActiveTab('financials')}
-              style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              Full Ledger <ArrowUpRight size={13} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ===== ROW 2: SUPPORTING GRAPHS (Membership Health Ring + Live Scanner Feed) ===== */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginBottom: '28px' }}>
-
-        {/* GRAPH 3: Membership Status Distribution (SVG Donut Chart) */}
+        {/* CHART 2: Membership Status Distribution (SVG Donut Chart) - PLACED IN ROW 1 */}
         <div className="graph-card">
           <div className="graph-header">
             <div>
@@ -639,6 +542,134 @@ export default function OverviewTab() {
               style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem' }}
             >
               <MessageSquare size={14} color="#25D366" /> Automated WhatsApp Renewal Bot
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== ROW 2: Revenue Collections (with Privacy Eye Toggle) + Live Hardware Scanner ===== */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px', marginBottom: '28px' }}>
+
+        {/* CHART 3: Revenue & Collections Growth Trajectory - WITH EYE PRIVACY TOGGLE */}
+        <div className="graph-card">
+          <div className="graph-header">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CreditCard size={18} color="#38bdf8" />
+                <h3 style={{ fontSize: '1.15rem', color: '#f9fafb', margin: 0 }}>Revenue & Fee Collections</h3>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>
+                Monthly fee receipts and store billing trajectory
+              </p>
+            </div>
+
+            {/* Total Collections with Privacy Eye Icon Button */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block' }}>Total Collections</span>
+                <strong style={{
+                  fontSize: '1.25rem',
+                  color: '#38bdf8',
+                  fontWeight: '800',
+                  letterSpacing: showRevenue ? 'normal' : '2px',
+                  fontFamily: showRevenue ? 'inherit' : 'monospace'
+                }}>
+                  {showRevenue ? formattedTotalRevenue : '₹ ••••••'}
+                </strong>
+              </div>
+
+              <button
+                onClick={() => setShowRevenue(prev => !prev)}
+                title={showRevenue ? "Hide Collections (Privacy Mode)" : "Show Total Collections"}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: showRevenue ? '#38bdf8' : '#9ca3af',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {showRevenue ? <Eye size={17} /> : <EyeOff size={17} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Monthly Bar Columns */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '160px', gap: '12px', padding: '10px 0' }}>
+            {monthlyRevenueData.map((item, i) => {
+              const heightPct = Math.min(100, Math.max(18, Math.round((item.amount / maxRevenueAmount) * 100)));
+              const isHovered = hoveredMonth === i;
+              const isCurrent = i === monthlyRevenueData.length - 1;
+
+              return (
+                <div
+                  key={i}
+                  className="graph-bar-col"
+                  onMouseEnter={() => setHoveredMonth(i)}
+                  onMouseLeave={() => setHoveredMonth(null)}
+                >
+                  {/* Amount Indicator on hover (masked if showRevenue is false) */}
+                  <div style={{
+                    fontSize: '0.72rem',
+                    color: isCurrent ? '#38bdf8' : '#9ca3af',
+                    fontWeight: '700',
+                    transition: 'transform 0.2s',
+                    transform: isHovered ? 'scale(1.15)' : 'scale(1)'
+                  }}>
+                    {showRevenue ? `₹${(item.amount / 1000).toFixed(1)}k` : '••••'}
+                  </div>
+
+                  <div
+                    className="graph-bar-track"
+                    style={{
+                      background: isHovered ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.04)',
+                      borderColor: isCurrent ? 'rgba(56, 189, 248, 0.3)' : 'transparent'
+                    }}
+                  >
+                    <div
+                      className="graph-bar-fill"
+                      style={{
+                        height: `${heightPct}%`,
+                        background: isCurrent
+                          ? 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)'
+                          : isHovered
+                            ? 'linear-gradient(180deg, #38bdf8 0%, #0369a1 100%)'
+                            : 'linear-gradient(180deg, rgba(56, 189, 248, 0.6) 0%, rgba(2, 132, 199, 0.4) 100%)',
+                        boxShadow: isCurrent ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none'
+                      }}
+                    />
+                  </div>
+
+                  <span style={{
+                    fontSize: '0.78rem',
+                    color: isCurrent ? '#38bdf8' : '#9ca3af',
+                    fontWeight: isCurrent ? '700' : '500'
+                  }}>
+                    {item.month}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Bottom Insights */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ color: '#34d399', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <TrendingUp size={14} /> +24.8% MoM Growth
+            </span>
+            <span style={{ color: '#9ca3af' }}>
+              Pending Dues: <strong style={{ color: '#fca5a5' }}>{showRevenue ? formattedPendingDues : '₹ ••••••'}</strong>
+            </span>
+            <button
+              onClick={() => setActiveTab('financials')}
+              style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              Full Ledger <ArrowUpRight size={13} />
             </button>
           </div>
         </div>
