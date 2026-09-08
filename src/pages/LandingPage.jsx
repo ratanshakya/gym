@@ -177,8 +177,8 @@ export default function LandingPage() {
           </div>
 
           <div className="landing-nav-links desktop-only">
-            <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
+            <a href="#features">Features</a>
             <a href="#testimonials">Reviews</a>
             <a href="#faq">FAQ</a>
           </div>
@@ -202,8 +202,8 @@ export default function LandingPage() {
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
           <div className="mobile-nav-drawer animate-slide-up">
-            <a href="#features" onClick={() => setMobileMenuOpen(false)}>⚡ Features & Modules</a>
             <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>💳 Pricing Plans</a>
+            <a href="#features" onClick={() => setMobileMenuOpen(false)}>⚡ Features & Modules</a>
             <a href="#testimonials" onClick={() => setMobileMenuOpen(false)}>⭐ Customer Reviews</a>
             <a href="#faq" onClick={() => setMobileMenuOpen(false)}>❓ Frequently Asked Questions</a>
             <div className="mobile-nav-divider" />
@@ -215,13 +215,14 @@ export default function LandingPage() {
               >
                 Open Admin Portal <ArrowRight size={16} />
               </button>
-              <button
-                onClick={() => { setMobileMenuOpen(false); setShowBiometricModal(true); }}
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
                 className="btn btn-secondary"
-                style={{ width: '100%', justifyContent: 'center' }}
+                style={{ width: '100%', justifyContent: 'center', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
               >
-                <Fingerprint size={16} color="#10b981" /> Launch Biometric Gate Simulator
-              </button>
+                <Sparkles size={16} color="#10b981" /> Explore Free Plans
+              </a>
             </div>
           </div>
         )}
@@ -265,9 +266,9 @@ export default function LandingPage() {
               <button onClick={() => navigate('/admin')} className="btn btn-primary pulse-3d" style={{ padding: '16px 28px', fontSize: '0.95rem' }}>
                 Open Admin Portal <ArrowRight size={18} />
               </button>
-              <button onClick={() => setShowBiometricModal(true)} className="btn btn-secondary" style={{ padding: '16px 28px', fontSize: '0.95rem' }}>
-                <Fingerprint size={18} color="#10b981" /> Biometric Gate
-              </button>
+              <a href="#pricing" className="btn btn-secondary" style={{ padding: '16px 28px', fontSize: '0.95rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={18} color="#10b981" /> View Free Plans
+              </a>
             </div>
 
             <div className="hero-stats">
@@ -432,6 +433,141 @@ export default function LandingPage() {
       {/* Section Glow Accent Divider */}
       <div className="section-glow-divider" />
 
+      {/* Pricing Section */}
+      <section id="pricing" className="pricing-section container animate-slide-up" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 32px' }}>
+          <span className="hero-badge">Simple Transparent Pricing</span>
+          <h2 style={{ fontSize: '2.4rem', marginTop: '8px' }}>Plans Built For Every Gym Size</h2>
+
+          {/* Limited Time Free Announcement Pill */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(16, 185, 129, 0.15)',
+            border: '1px solid rgba(16, 185, 129, 0.4)',
+            borderRadius: '999px',
+            padding: '6px 20px',
+            marginTop: '14px',
+            color: '#34d399',
+            fontSize: '0.85rem',
+            fontWeight: '600'
+          }}>
+            <Sparkles size={15} color="#10b981" />
+            <span>🎉 Abhi ke liye EasyGym sabhi gym owners ke liye <strong>100% Free</strong> hai!</span>
+          </div>
+
+          {/* Monthly / Yearly Toggle */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', padding: '4px', borderRadius: '999px' }}>
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                style={{ padding: '8px 24px', borderRadius: '999px', color: billingCycle === 'monthly' ? '#000' : '#9ca3af', background: billingCycle === 'monthly' ? '#10b981' : 'transparent', fontWeight: '700' }}
+              >
+                Monthly Billing
+              </button>
+              <button
+                onClick={() => setBillingCycle('yearly')}
+                style={{ padding: '8px 24px', borderRadius: '999px', color: billingCycle === 'yearly' ? '#000' : '#9ca3af', background: billingCycle === 'yearly' ? '#10b981' : 'transparent', fontWeight: '700' }}
+              >
+                Yearly (Save 20%)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="pricing-grid">
+          {/* 100% Free Plan */}
+          <div className="pricing-card free-tier">
+            <div style={{ position: 'absolute', top: '-14px', right: '20px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#000', padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.5px' }}>
+              🎉 100% FREE NOW
+            </div>
+            <h3 style={{ fontSize: '1.35rem', color: '#34d399' }}>Free Community</h3>
+            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>Full access for early gym owners & single fitness studios</p>
+            <div style={{ margin: '20px 0' }}>
+              <span style={{ fontSize: '2.6rem', fontWeight: '900', color: '#10b981' }}>₹0</span>
+              <span style={{ color: '#34d399', fontSize: '0.88rem', fontWeight: '600' }}> / Free Forever</span>
+            </div>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
+              <li style={{ color: '#f9fafb' }}>✔ Unlimited Gym Members CRM</li>
+              <li style={{ color: '#f9fafb' }}>✔ Biometric Turnstile Simulation</li>
+              <li style={{ color: '#f9fafb' }}>✔ Automated WhatsApp Alerts</li>
+              <li style={{ color: '#f9fafb' }}>✔ POS Supplement Billing & GST</li>
+              <li style={{ color: '#f9fafb' }}>✔ Cloud Database & Security</li>
+            </ul>
+            <button onClick={() => navigate('/admin')} className="btn btn-primary pulse-3d" style={{ width: '100%', padding: '12px' }}>
+              Start 100% Free Now
+            </button>
+          </div>
+
+          {/* Starter Plan - Reduced from ₹1,499 down to ₹499 */}
+          <div className="pricing-card">
+            <h3 style={{ fontSize: '1.35rem' }}>Starter Gym</h3>
+            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For single fitness studios under 250 members</p>
+            <div style={{ margin: '20px 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f9fafb' }}>₹{billingCycle === 'monthly' ? '499' : '399'}</span>
+              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
+            </div>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
+              <li style={{ color: '#f9fafb' }}>✔ Up to 250 Active Members</li>
+              <li style={{ color: '#f9fafb' }}>✔ Biometric Fingerprint & RFID</li>
+              <li style={{ color: '#f9fafb' }}>✔ Basic Billing & Invoices</li>
+              <li style={{ color: '#f9fafb' }}>✔ Member Attendance Heatmap</li>
+              <li>✖ Dedicated WhatsApp API</li>
+            </ul>
+            <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ width: '100%', padding: '12px' }}>
+              Choose Starter
+            </button>
+          </div>
+
+          {/* Pro Plan - Reduced from ₹2,999 down to ₹999 */}
+          <div className="pricing-card featured">
+            <div style={{ position: 'absolute', top: '-14px', right: '20px', background: '#38bdf8', color: '#000', padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '800' }}>
+              MOST POPULAR
+            </div>
+            <h3 style={{ fontSize: '1.35rem', color: '#38bdf8' }}>Pro Gym Software</h3>
+            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For commercial gyms requiring turnstiles & WhatsApp</p>
+            <div style={{ margin: '20px 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#38bdf8' }}>₹{billingCycle === 'monthly' ? '999' : '799'}</span>
+              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
+            </div>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
+              <li>✔ Unlimited Gym Members</li>
+              <li>✔ 3D Facial Recognition & Gates</li>
+              <li>✔ Automated WhatsApp Renewal Bot</li>
+              <li>✔ POS Store & Tax-Compliant GST</li>
+              <li>✔ Trainer & Class Scheduler</li>
+            </ul>
+            <button onClick={() => navigate('/admin')} className="btn btn-primary" style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #0284c7, #38bdf8)' }}>
+              Choose Pro
+            </button>
+          </div>
+
+          {/* Multi-Branch Enterprise - Reduced from ₹5,999 down to ₹1,999 */}
+          <div className="pricing-card">
+            <h3 style={{ fontSize: '1.35rem' }}>Multi-Branch Enterprise</h3>
+            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For fitness chains with 3+ locations</p>
+            <div style={{ margin: '20px 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f9fafb' }}>₹{billingCycle === 'monthly' ? '1,999' : '1,599'}</span>
+              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
+            </div>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
+              <li style={{ color: '#f9fafb' }}>✔ Unlimited Branches & Members</li>
+              <li style={{ color: '#f9fafb' }}>✔ Central Multi-Branch Sync</li>
+              <li style={{ color: '#f9fafb' }}>✔ Custom Hardware API Connector</li>
+              <li style={{ color: '#f9fafb' }}>✔ Dedicated Account Manager</li>
+              <li style={{ color: '#f9fafb' }}>✔ Priority 24/7 Phone Support</li>
+            </ul>
+            <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ width: '100%', padding: '12px' }}>
+              Contact Sales
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Glow Accent Divider */}
+      <div className="section-glow-divider" />
+
       {/* Feature Modules Tab Section */}
       <section id="features" className="features-section container animate-slide-up delay-300" style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 32px' }}>
@@ -490,9 +626,9 @@ export default function LandingPage() {
                 <h4 style={{ fontSize: '1.1rem', color: '#38bdf8', marginBottom: '16px' }}>Live Feature Sandbox</h4>
                 {mod.id === 'biometric' && (
                   <div>
-                    <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '16px' }}>Simulate member fingerprint check-in right now:</p>
-                    <button onClick={() => setShowBiometricModal(true)} className="btn btn-primary" style={{ width: '100%' }}>
-                      <Fingerprint size={18} /> Launch Biometric Hardware Simulator
+                    <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '16px' }}>Biometric turnstile hardware logs & member punch records:</p>
+                    <button onClick={() => { navigate('/admin'); setActiveTab('biometric'); }} className="btn btn-primary" style={{ width: '100%' }}>
+                      <Fingerprint size={18} /> Open Biometric Turnstile Logs
                     </button>
                   </div>
                 )}
@@ -659,141 +795,6 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-      </section>
-
-      {/* Section Glow Accent Divider */}
-      <div className="section-glow-divider" />
-
-      {/* Pricing Section */}
-      <section id="pricing" className="pricing-section container animate-slide-up" style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 32px' }}>
-          <span className="hero-badge">Simple Transparent Pricing</span>
-          <h2 style={{ fontSize: '2.4rem', marginTop: '8px' }}>Plans Built For Every Gym Size</h2>
-
-          {/* Limited Time Free Announcement Pill */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(16, 185, 129, 0.15)',
-            border: '1px solid rgba(16, 185, 129, 0.4)',
-            borderRadius: '999px',
-            padding: '6px 20px',
-            marginTop: '14px',
-            color: '#34d399',
-            fontSize: '0.85rem',
-            fontWeight: '600'
-          }}>
-            <Sparkles size={15} color="#10b981" />
-            <span>🎉 Abhi ke liye EasyGym sabhi gym owners ke liye <strong>100% Free</strong> hai!</span>
-          </div>
-
-          {/* Monthly / Yearly Toggle */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-            <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.06)', padding: '4px', borderRadius: '999px' }}>
-              <button
-                onClick={() => setBillingCycle('monthly')}
-                style={{ padding: '8px 24px', borderRadius: '999px', color: billingCycle === 'monthly' ? '#000' : '#9ca3af', background: billingCycle === 'monthly' ? '#10b981' : 'transparent', fontWeight: '700' }}
-              >
-                Monthly Billing
-              </button>
-              <button
-                onClick={() => setBillingCycle('yearly')}
-                style={{ padding: '8px 24px', borderRadius: '999px', color: billingCycle === 'yearly' ? '#000' : '#9ca3af', background: billingCycle === 'yearly' ? '#10b981' : 'transparent', fontWeight: '700' }}
-              >
-                Yearly (Save 20%)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="pricing-grid">
-          {/* 100% Free Plan */}
-          <div className="pricing-card free-tier">
-            <div style={{ position: 'absolute', top: '-14px', right: '20px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#000', padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '800', letterSpacing: '0.5px' }}>
-              🎉 100% FREE NOW
-            </div>
-            <h3 style={{ fontSize: '1.35rem', color: '#34d399' }}>Free Community</h3>
-            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>Full access for early gym owners & single fitness studios</p>
-            <div style={{ margin: '20px 0' }}>
-              <span style={{ fontSize: '2.6rem', fontWeight: '900', color: '#10b981' }}>₹0</span>
-              <span style={{ color: '#34d399', fontSize: '0.88rem', fontWeight: '600' }}> / Free Forever</span>
-            </div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
-              <li style={{ color: '#f9fafb' }}>✔ Unlimited Gym Members CRM</li>
-              <li style={{ color: '#f9fafb' }}>✔ Biometric Turnstile Simulation</li>
-              <li style={{ color: '#f9fafb' }}>✔ Automated WhatsApp Alerts</li>
-              <li style={{ color: '#f9fafb' }}>✔ POS Supplement Billing & GST</li>
-              <li style={{ color: '#f9fafb' }}>✔ Cloud Database & Security</li>
-            </ul>
-            <button onClick={() => navigate('/admin')} className="btn btn-primary pulse-3d" style={{ width: '100%', padding: '12px' }}>
-              Start 100% Free Now
-            </button>
-          </div>
-
-          {/* Starter Plan - Reduced from ₹1,499 down to ₹499 */}
-          <div className="pricing-card">
-            <h3 style={{ fontSize: '1.35rem' }}>Starter Gym</h3>
-            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For single fitness studios under 250 members</p>
-            <div style={{ margin: '20px 0' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f9fafb' }}>₹{billingCycle === 'monthly' ? '499' : '399'}</span>
-              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
-            </div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
-              <li style={{ color: '#f9fafb' }}>✔ Up to 250 Active Members</li>
-              <li style={{ color: '#f9fafb' }}>✔ Biometric Fingerprint & RFID</li>
-              <li style={{ color: '#f9fafb' }}>✔ Basic Billing & Invoices</li>
-              <li style={{ color: '#f9fafb' }}>✔ Member Attendance Heatmap</li>
-              <li>✖ Dedicated WhatsApp API</li>
-            </ul>
-            <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ width: '100%', padding: '12px' }}>
-              Choose Starter
-            </button>
-          </div>
-
-          {/* Pro Plan - Reduced from ₹2,999 down to ₹999 */}
-          <div className="pricing-card featured">
-            <div style={{ position: 'absolute', top: '-14px', right: '20px', background: '#38bdf8', color: '#000', padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '800' }}>
-              MOST POPULAR
-            </div>
-            <h3 style={{ fontSize: '1.35rem', color: '#38bdf8' }}>Pro Gym Software</h3>
-            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For commercial gyms requiring turnstiles & WhatsApp</p>
-            <div style={{ margin: '20px 0' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#38bdf8' }}>₹{billingCycle === 'monthly' ? '999' : '799'}</span>
-              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
-            </div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
-              <li>✔ Unlimited Gym Members</li>
-              <li>✔ 3D Facial Recognition & Gates</li>
-              <li>✔ Automated WhatsApp Renewal Bot</li>
-              <li>✔ POS Store & Tax-Compliant GST</li>
-              <li>✔ Trainer & Class Scheduler</li>
-            </ul>
-            <button onClick={() => navigate('/admin')} className="btn btn-primary" style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #0284c7, #38bdf8)' }}>
-              Choose Pro
-            </button>
-          </div>
-
-          {/* Multi-Branch Enterprise - Reduced from ₹5,999 down to ₹1,999 */}
-          <div className="pricing-card">
-            <h3 style={{ fontSize: '1.35rem' }}>Multi-Branch Enterprise</h3>
-            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>For fitness chains with 3+ locations</p>
-            <div style={{ margin: '20px 0' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f9fafb' }}>₹{billingCycle === 'monthly' ? '1,999' : '1,599'}</span>
-              <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}> / month</span>
-            </div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '0.88rem', color: '#9ca3af', marginBottom: '28px' }}>
-              <li style={{ color: '#f9fafb' }}>✔ Unlimited Branches & Members</li>
-              <li style={{ color: '#f9fafb' }}>✔ Central Multi-Branch Sync</li>
-              <li style={{ color: '#f9fafb' }}>✔ Custom Hardware API Connector</li>
-              <li style={{ color: '#f9fafb' }}>✔ Dedicated Account Manager</li>
-              <li style={{ color: '#f9fafb' }}>✔ Priority 24/7 Phone Support</li>
-            </ul>
-            <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ width: '100%', padding: '12px' }}>
-              Contact Sales
-            </button>
-          </div>
-        </div>
       </section>
 
       {/* Section Glow Accent Divider */}
