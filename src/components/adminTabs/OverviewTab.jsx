@@ -3,7 +3,7 @@ import { useGym } from '../../context/GymContext';
 import { 
   Users, CreditCard, Activity, Clock, ShieldAlert, ArrowUpRight, Plus, 
   Fingerprint, MessageSquare, AlertCircle, TrendingUp, BarChart3, Zap, 
-  Flame, CheckCircle2, ShieldCheck, Sparkles, Eye, EyeOff 
+  Flame, CheckCircle2, ShieldCheck, Sparkles, Eye, EyeOff, Calendar 
 } from 'lucide-react';
 
 export default function OverviewTab() {
@@ -54,7 +54,7 @@ export default function OverviewTab() {
 
   const maxWeeklyCheckins = Math.max(...weeklyAttendanceData.map(d => d.checkins), 40);
 
-  // Smooth SVG Curve Calculation
+  // Smooth SVG Curve Calculation for Attendance
   const svgWidth = 560;
   const svgHeight = 160;
   const paddingX = 30;
@@ -94,17 +94,99 @@ export default function OverviewTab() {
     { slot: '8:30-10 PM', label: 'Night Iron', occupancy: 58, color: '#10b981' },
   ];
 
-  // --- Graph 2 Data: Monthly Fee Collections (Last 6 Months) ---
-  const baselineRevenue = totalRevenue > 0 ? totalRevenue : 35000;
-  const monthlyRevenueData = [
-    { month: 'Apr', amount: Math.round(baselineRevenue * 0.48), renewals: 12 },
-    { month: 'May', amount: Math.round(baselineRevenue * 0.62), renewals: 16 },
-    { month: 'Jun', amount: Math.round(baselineRevenue * 0.74), renewals: 19 },
-    { month: 'Jul', amount: Math.round(baselineRevenue * 0.86), renewals: 24 },
-    { month: 'Aug', amount: Math.round(baselineRevenue * 0.94), renewals: 28 },
-    { month: 'Sep', amount: Math.max(totalRevenue, Math.round(baselineRevenue * 1.08)), renewals: Math.max(monthlyRenewals, 32) }
-  ];
-  const maxRevenueAmount = Math.max(...monthlyRevenueData.map(d => d.amount), 50000);
+  // --- Graph 2 Data: Monthly Fee Collections & Renewable Gymer Trend (Starting from Gym Register Month) ---
+  const regDate = (() => {
+    if (user?.createdAt) {
+      const d = new Date(user.createdAt);
+      if (!isNaN(d.getTime())) return d;
+    }
+    if (user?.registerDate) {
+      const d = new Date(user.registerDate);
+      if (!isNaN(d.getTime())) return d;
+    }
+    if (data.members && data.members.length > 0) {
+      const dates = data.members
+        .map(m => m.joinDate || m.createdAt)
+        .filter(Boolean)
+        .map(d => new Date(d))
+        .filter(d => !isNaN(d.getTime()));
+      if (dates.length > 0) {
+        return new Date(Math.min(...dates));
+      }
+    }
+    return new Date('2026-08-01');
+  })();
+
+  const startYear = regDate.getFullYear();
+  const startMonth = regDate.getMonth(); // 0-indexed, e.g. 7 for Aug
+
+  const currentYearMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+  const monthlyRevenueData = Array.from({ length: 6 }).map((_, i) => {
+    const d = new Date(startYear, startMonth + i, 1);
+    const y = d.getFullYear();
+    const mNum = String(d.getMonth() + 1).padStart(2, '0');
+    const monthKey = `${y}-${mNum}`;
+    const monthShort = d.toLocaleString('en-US', { month: 'short' });
+    const monthFull = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    const yearShort = `'${String(y).slice(-2)}`;
+
+    // Revenue in this month:
+    const membersRev = (data.members || []).reduce((sum, m) => {
+      const jMatch = m.joinDate && m.joinDate.startsWith(monthKey);
+      const rMatch = m.lastRenewedDate && m.lastRenewedDate.startsWith(monthKey);
+      if (jMatch || rMatch) return sum + (Number(m.paidAmount) || 0);
+      return sum;
+    }, 0);
+
+    const invoicesRev = (data.invoices || []).reduce((sum, inv) => {
+      if (inv.date && inv.date.startsWith(monthKey)) {
+        return sum + (Number(inv.total) || 0);
+      }
+      return sum;
+    }, 0);
+
+    const actualRevenue = membersRev + invoicesRev;
+
+    // Renewable gymers: members whose plan expires in this month
+    const renewableMembers = (data.members || []).filter(m => {
+      return m.expiryDate && m.expiryDate.startsWith(monthKey);
+    });
+
+    return {
+      monthKey,
+      month: monthShort,
+      yearShort,
+      monthFull,
+      revenue: actualRevenue,
+      renewableCount: renewableMembers.length,
+      renewableNames: renewableMembers.map(m => m.name),
+      isCurrent: monthKey === currentYearMonth,
+      isRegisteredMonth: i === 0
+    };
+  });
+
+  const maxRevenueAmount = Math.max(...monthlyRevenueData.map(d => d.revenue), 4500);
+  const maxRenewableCount = Math.max(...monthlyRevenueData.map(d => d.renewableCount), 4);
+
+  // Coordinates for Combo Chart (Revenue Bars + Renewable Gymer Line)
+  const comboSvgWidth = 560;
+  const comboSvgHeight = 190;
+  const comboPaddingX = 42;
+  const comboInnerWidth = comboSvgWidth - comboPaddingX * 2;
+
+  const comboPoints = monthlyRevenueData.map((d, i) => {
+    const cx = comboPaddingX + (i / (monthlyRevenueData.length - 1)) * comboInnerWidth;
+    // Bar coordinates
+    const barHeight = Math.max(10, Math.round((d.revenue / maxRevenueAmount) * 105));
+    const barY = 145 - barHeight;
+    // Line coordinates for Renewable Gymers
+    const lineY = 140 - Math.round((d.renewableCount / maxRenewableCount) * 90);
+    return { ...d, cx, barY, barHeight, lineY };
+  });
+
+  const renewableLinePath = getBezierPath(comboPoints.map(p => ({ x: p.cx, y: p.lineY })));
+  const renewableAreaPath = `${renewableLinePath} L ${comboPoints[comboPoints.length - 1].cx} 145 L ${comboPoints[0].cx} 145 Z`;
 
   // --- Graph 3 Data: Membership Status Ratio (Donut Chart) ---
   const activeCount = activeMembers || (totalMembers > 0 ? totalMembers : 2);
@@ -206,7 +288,7 @@ export default function OverviewTab() {
         </div>
       </div>
 
-      {/* ===== ROW 1: Attendance Analytics + Membership Health Ratio (SWAPPED AS REQUESTED) ===== */}
+      {/* ===== ROW 1: Attendance Analytics + Membership Health Ratio ===== */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px', marginBottom: '28px' }}>
         
         {/* CHART 1: Gym Attendance & Check-in Footfall */}
@@ -396,7 +478,7 @@ export default function OverviewTab() {
           )}
         </div>
 
-        {/* CHART 2: Membership Status Distribution (SVG Donut Chart) - PLACED IN ROW 1 */}
+        {/* CHART 2: Membership Status Distribution (SVG Donut Chart) */}
         <div className="graph-card">
           <div className="graph-header">
             <div>
@@ -547,130 +629,344 @@ export default function OverviewTab() {
         </div>
       </div>
 
-      {/* ===== ROW 2: Revenue Collections (with Privacy Eye Toggle) + Live Hardware Scanner ===== */}
+      {/* ===== ROW 2: Revenue Collections & Renewable Gymer Line + Live Hardware Scanner ===== */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px', marginBottom: '28px' }}>
 
-        {/* CHART 3: Revenue & Collections Growth Trajectory - WITH EYE PRIVACY TOGGLE */}
+        {/* CHART 3: Combo Chart (Revenue Bars + Renewable Gymer Line) */}
         <div className="graph-card">
           <div className="graph-header">
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CreditCard size={18} color="#38bdf8" />
-                <h3 style={{ fontSize: '1.15rem', color: '#f9fafb', margin: 0 }}>Revenue & Fee Collections</h3>
+                <h3 style={{ fontSize: '1.15rem', color: '#f9fafb', margin: 0 }}>Revenue & Renewable Gymers Trajectory</h3>
               </div>
               <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '4px' }}>
-                Monthly fee receipts and store billing trajectory
+                Started from <strong style={{ color: '#38bdf8' }}>{regDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</strong> (Gym Registration Month)
               </p>
             </div>
 
-            {/* Total Collections with Privacy Eye Icon Button */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block' }}>Total Collections</span>
-                <strong style={{
-                  fontSize: '1.25rem',
-                  color: '#38bdf8',
-                  fontWeight: '800',
-                  letterSpacing: showRevenue ? 'normal' : '2px',
-                  fontFamily: showRevenue ? 'inherit' : 'monospace'
-                }}>
-                  {showRevenue ? formattedTotalRevenue : '₹ ••••••'}
-                </strong>
+            {/* Legend & Privacy Eye Icon */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              {/* Legend Badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#38bdf8' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'linear-gradient(180deg, #38bdf8, #0284c7)' }} />
+                  Fee Revenue (₹)
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#34d399', fontWeight: '600' }}>
+                  <span style={{ width: '10px', height: '3px', background: '#10b981', borderRadius: '99px' }} />
+                  Renewable Gymers (Line)
+                </span>
               </div>
 
-              <button
-                onClick={() => setShowRevenue(prev => !prev)}
-                title={showRevenue ? "Hide Collections (Privacy Mode)" : "Show Total Collections"}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: showRevenue ? '#38bdf8' : '#9ca3af',
-                  padding: '8px 10px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {showRevenue ? <Eye size={17} /> : <EyeOff size={17} />}
-              </button>
+              {/* Eye Button & Total */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#9ca3af', display: 'block' }}>Total Collections</span>
+                  <strong style={{
+                    fontSize: '1.2rem',
+                    color: '#38bdf8',
+                    fontWeight: '800',
+                    letterSpacing: showRevenue ? 'normal' : '2px',
+                    fontFamily: showRevenue ? 'inherit' : 'monospace'
+                  }}>
+                    {showRevenue ? formattedTotalRevenue : '₹ ••••••'}
+                  </strong>
+                </div>
+
+                <button
+                  onClick={() => setShowRevenue(prev => !prev)}
+                  title={showRevenue ? "Hide Collections (Privacy Mode)" : "Show Total Collections"}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    color: showRevenue ? '#38bdf8' : '#9ca3af',
+                    padding: '6px 9px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {showRevenue ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Monthly Bar Columns */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '160px', gap: '12px', padding: '10px 0' }}>
-            {monthlyRevenueData.map((item, i) => {
-              const heightPct = Math.min(100, Math.max(18, Math.round((item.amount / maxRevenueAmount) * 100)));
-              const isHovered = hoveredMonth === i;
-              const isCurrent = i === monthlyRevenueData.length - 1;
+          {/* Combo SVG Canvas: Revenue Bars + Renewable Gymer Line */}
+          <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+            <svg viewBox={`0 0 ${comboSvgWidth} ${comboSvgHeight}`} style={{ width: '100%', height: '190px', overflow: 'visible' }}>
+              <defs>
+                {/* Bar Gradient */}
+                <linearGradient id="comboBarGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#0284c7" stopOpacity="0.4" />
+                </linearGradient>
+                <linearGradient id="comboBarGradHover" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#60a5fa" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#2563eb" stopOpacity="0.7" />
+                </linearGradient>
 
-              return (
-                <div
-                  key={i}
-                  className="graph-bar-col"
-                  onMouseEnter={() => setHoveredMonth(i)}
-                  onMouseLeave={() => setHoveredMonth(null)}
-                >
-                  {/* Amount Indicator on hover (masked if showRevenue is false) */}
-                  <div style={{
-                    fontSize: '0.72rem',
-                    color: isCurrent ? '#38bdf8' : '#9ca3af',
-                    fontWeight: '700',
-                    transition: 'transform 0.2s',
-                    transform: isHovered ? 'scale(1.15)' : 'scale(1)'
-                  }}>
-                    {showRevenue ? `₹${(item.amount / 1000).toFixed(1)}k` : '••••'}
-                  </div>
+                {/* Renewable Gymer Line Area Gradient */}
+                <linearGradient id="renewableAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                </linearGradient>
 
-                  <div
-                    className="graph-bar-track"
-                    style={{
-                      background: isHovered ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255, 255, 255, 0.04)',
-                      borderColor: isCurrent ? 'rgba(56, 189, 248, 0.3)' : 'transparent'
-                    }}
-                  >
-                    <div
-                      className="graph-bar-fill"
-                      style={{
-                        height: `${heightPct}%`,
-                        background: isCurrent
-                          ? 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)'
-                          : isHovered
-                            ? 'linear-gradient(180deg, #38bdf8 0%, #0369a1 100%)'
-                            : 'linear-gradient(180deg, rgba(56, 189, 248, 0.6) 0%, rgba(2, 132, 199, 0.4) 100%)',
-                        boxShadow: isCurrent ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none'
-                      }}
+                <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#10b981" floodOpacity="0.6" />
+                </filter>
+              </defs>
+
+              {/* Grid Lines */}
+              {[35, 75, 115, 145].map((y, idx) => (
+                <line
+                  key={idx}
+                  x1={comboPaddingX - 10}
+                  y1={y}
+                  x2={comboSvgWidth - comboPaddingX + 10}
+                  y2={y}
+                  stroke="rgba(255, 255, 255, 0.05)"
+                  strokeDasharray="4 4"
+                  strokeWidth="1"
+                />
+              ))}
+
+              {/* 1. Revenue Bars Layer */}
+              {comboPoints.map((pt, i) => {
+                const isHovered = hoveredMonth === i;
+                const barW = 34;
+                const barX = pt.cx - barW / 2;
+
+                return (
+                  <g key={`bar-${i}`}>
+                    {/* Background Pillar Slot */}
+                    <rect
+                      x={barX}
+                      y={35}
+                      width={barW}
+                      height={110}
+                      rx="6"
+                      ry="6"
+                      fill={isHovered ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255, 255, 255, 0.02)'}
+                      stroke={pt.isCurrent ? 'rgba(56, 189, 248, 0.3)' : 'transparent'}
+                      strokeWidth="1"
                     />
+
+                    {/* Active Revenue Bar */}
+                    <rect
+                      x={barX}
+                      y={pt.barY}
+                      width={barW}
+                      height={pt.barHeight}
+                      rx="6"
+                      ry="6"
+                      fill={isHovered ? 'url(#comboBarGradHover)' : 'url(#comboBarGrad)'}
+                      style={{ transition: 'all 0.3s ease' }}
+                    />
+
+                    {/* Revenue Amount Label atop Bar */}
+                    <text
+                      x={pt.cx}
+                      y={Math.max(26, pt.barY - 7)}
+                      textAnchor="middle"
+                      fill={pt.isCurrent ? '#38bdf8' : isHovered ? '#60a5fa' : '#9ca3af'}
+                      fontSize="10"
+                      fontWeight="700"
+                    >
+                      {showRevenue ? (pt.revenue > 0 ? `₹${(pt.revenue / 1000).toFixed(1)}k` : '₹0') : '••••'}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* 2. Renewable Gymer Line Area & Stroke Layer */}
+              <path d={renewableAreaPath} fill="url(#renewableAreaGrad)" />
+
+              <path
+                d={renewableLinePath}
+                fill="none"
+                stroke="#10b981"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                filter="url(#lineGlow)"
+              />
+
+              {/* 3. Renewable Gymer Nodes & Badges */}
+              {comboPoints.map((pt, i) => {
+                const isHovered = hoveredMonth === i;
+                const hasRenewables = pt.renewableCount > 0;
+
+                return (
+                  <g key={`dot-${i}`}>
+                    {/* Pulsing Beacon if month has renewable members */}
+                    {hasRenewables && (
+                      <circle
+                        cx={pt.cx}
+                        cy={pt.lineY}
+                        r={isHovered ? 13 : 9}
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="1.5"
+                        strokeDasharray="2 2"
+                        opacity={isHovered ? 0.9 : 0.6}
+                      />
+                    )}
+
+                    {/* Node Dot */}
+                    <circle
+                      cx={pt.cx}
+                      cy={pt.lineY}
+                      r={hasRenewables ? (isHovered ? 7.5 : 5.5) : (isHovered ? 5.5 : 4)}
+                      fill={hasRenewables ? '#34d399' : '#050811'}
+                      stroke="#10b981"
+                      strokeWidth={hasRenewables ? 2.5 : 2}
+                      style={{ transition: 'all 0.2s ease' }}
+                    />
+
+                    {/* Badge Pill for Renewable Gymer Count */}
+                    {hasRenewables && (
+                      <g>
+                        <rect
+                          x={pt.cx - 28}
+                          y={pt.lineY - 26}
+                          width="56"
+                          height="18"
+                          rx="9"
+                          fill="rgba(5, 8, 17, 0.92)"
+                          stroke="#10b981"
+                          strokeWidth="1.2"
+                        />
+                        <text
+                          x={pt.cx}
+                          y={pt.lineY - 14}
+                          textAnchor="middle"
+                          fill="#34d399"
+                          fontSize="9.5"
+                          fontWeight="800"
+                        >
+                          {pt.renewableCount} Gymers
+                        </text>
+                      </g>
+                    )}
+
+                    {/* Month Label on X Axis */}
+                    <text
+                      x={pt.cx}
+                      y={166}
+                      textAnchor="middle"
+                      fill={pt.isCurrent ? '#38bdf8' : isHovered ? '#f9fafb' : '#9ca3af'}
+                      fontSize="11.5"
+                      fontWeight={pt.isCurrent || isHovered ? '700' : '500'}
+                    >
+                      {pt.month}
+                    </text>
+
+                    {/* Year / Status subtext */}
+                    <text
+                      x={pt.cx}
+                      y={180}
+                      textAnchor="middle"
+                      fill={pt.isRegisteredMonth ? '#10b981' : pt.isCurrent ? '#38bdf8' : '#6b7280'}
+                      fontSize="9"
+                      fontWeight={pt.isRegisteredMonth || pt.isCurrent ? '700' : '500'}
+                    >
+                      {pt.isRegisteredMonth ? '★ Registered' : pt.isCurrent ? '● Current' : pt.yearShort}
+                    </text>
+
+                    {/* Invisible Column Click/Hover Hitbox */}
+                    <rect
+                      x={pt.cx - 36}
+                      y={0}
+                      width="72"
+                      height={comboSvgHeight}
+                      fill="transparent"
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={() => setHoveredMonth(i)}
+                      onMouseLeave={() => setHoveredMonth(null)}
+                    />
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Hover Tooltip Overlay for the Month */}
+            {hoveredMonth !== null && comboPoints[hoveredMonth] && (
+              <div style={{
+                position: 'absolute',
+                top: 10,
+                left: Math.min(Math.max(10, comboPoints[hoveredMonth].cx - 90), comboSvgWidth - 210),
+                background: 'rgba(13, 19, 34, 0.96)',
+                border: '1px solid rgba(56, 189, 248, 0.4)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                pointerEvents: 'none',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.7)',
+                zIndex: 20,
+                minWidth: '180px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '4px' }}>
+                  <strong style={{ fontSize: '0.85rem', color: '#f9fafb' }}>
+                    {comboPoints[hoveredMonth].monthFull}
+                  </strong>
+                  {comboPoints[hoveredMonth].isRegisteredMonth && (
+                    <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: '700' }}>Gym Start</span>
+                  )}
+                </div>
+
+                <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af' }}>
+                    <span>Fee Collections:</span>
+                    <strong style={{ color: '#38bdf8' }}>
+                      {showRevenue ? `₹${comboPoints[hoveredMonth].revenue.toLocaleString('en-IN')}` : '₹ ••••••'}
+                    </strong>
                   </div>
 
-                  <span style={{
-                    fontSize: '0.78rem',
-                    color: isCurrent ? '#38bdf8' : '#9ca3af',
-                    fontWeight: isCurrent ? '700' : '500'
-                  }}>
-                    {item.month}
-                  </span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af' }}>
+                    <span>Renewable Gymers:</span>
+                    <strong style={{ color: comboPoints[hoveredMonth].renewableCount > 0 ? '#34d399' : '#9ca3af' }}>
+                      {comboPoints[hoveredMonth].renewableCount} Members
+                    </strong>
+                  </div>
+
+                  {comboPoints[hoveredMonth].renewableNames.length > 0 && (
+                    <div style={{ marginTop: '4px', paddingTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.08)', fontSize: '0.74rem', color: '#34d399' }}>
+                      Gymer Names: <strong>{comboPoints[hoveredMonth].renewableNames.join(', ')}</strong>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
 
           {/* Bottom Insights */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ color: '#34d399', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              <TrendingUp size={14} /> +24.8% MoM Growth
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', flexWrap: 'wrap', gap: '10px' }}>
+            <span style={{ color: '#34d399', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <TrendingUp size={14} /> Registered: {regDate.toLocaleString('default', { month: 'short', year: 'numeric' })}
             </span>
+
             <span style={{ color: '#9ca3af' }}>
-              Pending Dues: <strong style={{ color: '#fca5a5' }}>{showRevenue ? formattedPendingDues : '₹ ••••••'}</strong>
+              This Month Renewable: <strong style={{ color: '#34d399' }}>{monthlyRevenueData.find(d => d.isCurrent)?.renewableCount || 0} Gymers</strong>
             </span>
-            <button
-              onClick={() => setActiveTab('financials')}
-              style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              Full Ledger <ArrowUpRight size={13} />
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ color: '#9ca3af' }}>
+                Pending Dues: <strong style={{ color: '#fca5a5' }}>{showRevenue ? formattedPendingDues : '₹ ••••••'}</strong>
+              </span>
+
+              <button
+                onClick={() => setActiveTab('whatsapp')}
+                className="btn btn-sm btn-primary"
+                style={{ background: '#25D366', color: '#000', fontSize: '0.75rem', padding: '5px 10px', gap: '4px' }}
+                title="Send automated renewal message via WhatsApp"
+              >
+                <MessageSquare size={13} /> WhatsApp Reminders
+              </button>
+            </div>
           </div>
         </div>
 
