@@ -384,18 +384,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
   margin-top: 48px;
 }
 
 .pricing-card {
-  padding: 36px;
+  padding: 32px 24px;
   border-radius: var(--radius-xl);
   background: var(--bg-card);
   border: 1px solid var(--border-dark);
   position: relative;
-  transition: transform 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
 
 .pricing-card:hover {
@@ -404,8 +404,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pricing-card.featured {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, var(--bg-card) 100%);
   border: 2px solid var(--primary);
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
+}
+
+.pricing-card.free-tier {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.16) 0%, var(--bg-card) 100%);
+  border: 2px solid #10b981;
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.25);
 }
 
 /* ADMIN DASHBOARD LAYOUT */
