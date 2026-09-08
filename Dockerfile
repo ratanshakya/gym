@@ -1,7 +1,7 @@
 # ==========================================
 # STAGE 1: Build the React/Vite Frontend
 # ==========================================
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN npm run build
 # ==========================================
 # STAGE 2: Setup Node Express Backend Server
 # ==========================================
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN npm install --omit=dev
 
 # Copy the backend files
 COPY server.js ./
-COPY .env ./
+COPY .env* ./
 
 # Copy the built frontend static files from the builder stage
 COPY --from=builder /app/dist ./dist
