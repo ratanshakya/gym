@@ -15,4 +15,4 @@ User-agent: Bingbot
 Allow: /
 
 # XML Sitemap Location
-Sitemap: https://easygym.in/sitemap.xml
+Sitemap: https://gym-git-845742086054.europe-west1.run.app/sitemap.xml

@@ -4,31 +4,31 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>https://easygym.in/</loc>
+    <loc>https://gym-git-845742086054.europe-west1.run.app/</loc>
     <lastmod>2026-09-08T00:00:00+05:30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>https://easygym.in/#pricing</loc>
+    <loc>https://gym-git-845742086054.europe-west1.run.app/#pricing</loc>
     <lastmod>2026-09-08T00:00:00+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://easygym.in/#features</loc>
+    <loc>https://gym-git-845742086054.europe-west1.run.app/#features</loc>
     <lastmod>2026-09-08T00:00:00+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://easygym.in/#testimonials</loc>
+    <loc>https://gym-git-845742086054.europe-west1.run.app/#testimonials</loc>
     <lastmod>2026-09-08T00:00:00+05:30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://easygym.in/#faq</loc>
+    <loc>https://gym-git-845742086054.europe-west1.run.app/#faq</loc>
     <lastmod>2026-09-08T00:00:00+05:30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
