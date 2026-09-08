@@ -50,7 +50,7 @@ export default function UserDashboard() {
   const paginatedInvoices = memberInvoices.slice((pageInvoices - 1) * perPageInvoices, pageInvoices * perPageInvoices);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#090d16', color: '#f9fafb', paddingBottom: '60px' }}>
+    <div style={{ minHeight: '100vh', background: '#050811', color: '#f9fafb', paddingBottom: '60px' }}>
       
       {/* Top Member Header */}
       <header style={{ background: 'rgba(17, 24, 39, 0.8)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', sticky: 'top', top: 0, zIndex: 50 }}>

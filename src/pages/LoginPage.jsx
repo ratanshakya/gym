@@ -186,7 +186,7 @@ export default function LoginPage() {
       justifyContent: 'center',
       padding: '40px 20px',
     }}>
-      <div style={{ width: '100%', maxWidth: '1080px', display: 'grid', gridTemplateColumns: authMode === 'register' ? '0.9fr 1.1fr' : '1.1fr 1fr', gap: '32px', alignItems: 'center' }}>
+      <div className={`login-container-grid ${authMode === 'register' ? 'register-mode' : ''}`}>
         
         {/* Left Side: Branding & Features */}
         <div>
@@ -194,7 +194,7 @@ export default function LoginPage() {
             <Sparkles size={16} /> Gym Owner Management Portal
           </div>
 
-          <h1 style={{ fontSize: '2.6rem', lineHeight: '1.15', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', lineHeight: '1.15', marginBottom: '16px' }}>
             {authMode === 'login' ? 'Secure Login for ' : 'Register Your Gym Info with '}
             <span className="gradient-text">{authMode === 'login' ? 'Gym Owners' : 'EasyGym Management'}</span>
           </h1>
@@ -207,7 +207,7 @@ export default function LoginPage() {
           </p>
 
           {/* Platform Features Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          <div className="login-features-grid">
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', padding: '14px', borderRadius: '12px' }}>
               <Dumbbell size={20} color="#10b981" style={{ marginBottom: '8px' }} />
               <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#f9fafb' }}>Member Management</div>

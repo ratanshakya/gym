@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGym } from '../context/GymContext';
-import { Dumbbell, ShieldCheck, Fingerprint, MessageSquare, ShoppingBag, Calendar, TrendingUp, CheckCircle2, ArrowRight, Play, Star, ChevronDown, ChevronUp, Zap, Sparkles, Users, IndianRupee, Activity, BarChart3, Lock, Cloud, Tag, RefreshCw, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
+import { Dumbbell, ShieldCheck, Fingerprint, MessageSquare, ShoppingBag, Calendar, TrendingUp, CheckCircle2, ArrowRight, Play, Star, ChevronDown, ChevronUp, Zap, Sparkles, Users, IndianRupee, Activity, BarChart3, Lock, Cloud, Tag, RefreshCw, ChevronLeft, ChevronRight, Flame, Menu, X } from 'lucide-react';
 import './Landing.css';
 
 export default function LandingPage() {
@@ -10,6 +10,7 @@ export default function LandingPage() {
   const [activeModule, setActiveModule] = useState('biometric');
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [openFaq, setOpenFaq] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // ---- High-Energy Cinematic Hero Slides ----
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -166,8 +167,8 @@ export default function LandingPage() {
 
       {/* ===== NAVBAR ===== */}
       <nav className="landing-nav">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '80px' }}>
-          <div className="brand-logo">
+        <div className="container nav-inner-container">
+          <div className="brand-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <div className="brand-icon"><Dumbbell size={22} /></div>
             <div>
               <span style={{ color: '#f9fafb' }}>EasyGym</span>
@@ -175,17 +176,55 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            <a href="#features" style={{ color: '#9ca3af', fontWeight: '500' }}>Features</a>
-            <a href="#pricing" style={{ color: '#9ca3af', fontWeight: '500' }}>Pricing</a>
-            <a href="#testimonials" style={{ color: '#9ca3af', fontWeight: '500' }}>Reviews</a>
-            <a href="#faq" style={{ color: '#9ca3af', fontWeight: '500' }}>FAQ</a>
+          <div className="landing-nav-links desktop-only">
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#testimonials">Reviews</a>
+            <a href="#faq">FAQ</a>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button onClick={() => { navigate('/admin'); setActiveTab('overview'); }} className="btn btn-primary btn-sm pulse-3d">Admin Portal <ArrowRight size={14} /></button>
+          <div className="nav-actions-wrap">
+            <button onClick={() => { navigate('/admin'); setActiveTab('overview'); }} className="btn btn-primary btn-sm pulse-3d admin-nav-btn">
+              <span>Admin Portal</span> <ArrowRight size={14} />
+            </button>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X size={22} color="#10b981" /> : <Menu size={22} color="#f9fafb" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Drawer */}
+        {mobileMenuOpen && (
+          <div className="mobile-nav-drawer animate-slide-up">
+            <a href="#features" onClick={() => setMobileMenuOpen(false)}>⚡ Features & Modules</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>💳 Pricing Plans</a>
+            <a href="#testimonials" onClick={() => setMobileMenuOpen(false)}>⭐ Customer Reviews</a>
+            <a href="#faq" onClick={() => setMobileMenuOpen(false)}>❓ Frequently Asked Questions</a>
+            <div className="mobile-nav-divider" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => { setMobileMenuOpen(false); navigate('/admin'); setActiveTab('overview'); }}
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Open Admin Portal <ArrowRight size={16} />
+              </button>
+              <button
+                onClick={() => { setMobileMenuOpen(false); setShowBiometricModal(true); }}
+                className="btn btn-secondary"
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Fingerprint size={16} color="#10b981" /> Launch Biometric Gate Simulator
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ===== HERO SECTION ===== */}
@@ -222,7 +261,7 @@ export default function LandingPage() {
               Eliminate manual registers, block expired members automatically at turnstile gates, automate WhatsApp renewals, and boost revenue with GST POS billing.
             </p>
 
-            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }} className="animate-slide-up delay-200">
+            <div className="hero-cta-group animate-slide-up delay-200">
               <button onClick={() => navigate('/admin')} className="btn btn-primary pulse-3d" style={{ padding: '16px 28px', fontSize: '0.95rem' }}>
                 Open Admin Portal <ArrowRight size={18} />
               </button>
@@ -287,7 +326,7 @@ export default function LandingPage() {
           </div>
 
           {/* Hero Visual Mockup Card */}
-          <div className="glass-card animate-float-3d" style={{ padding: '28px', border: '1px solid rgba(16, 185, 129, 0.3)', boxShadow: '0 20px 60px rgba(16, 185, 129, 0.15)' }}>
+          <div className="glass-card hero-preview-card animate-float-3d">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid var(--border-dark)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444' }}></div>
@@ -369,7 +408,7 @@ export default function LandingPage() {
             <span className="hero-badge">Why Gym Owners Love Us</span>
             <h2 style={{ fontSize: '2.2rem', marginTop: '12px' }}>Built for the <span className="gradient-text">Real Gym Floor</span></h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div className="why-easygym-grid">
             {[
               { Icon: Lock,       title: 'Auto Gate Control',       desc: 'Expired member tries to enter? The turnstile locks automatically. Zero manual intervention needed.',                       color: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.28)',  iconColor: '#10b981' },
               { Icon: MessageSquare, title: 'WhatsApp Renewal Bot',  desc: 'System sends a personalised WhatsApp message 7 days before expiry. Retention goes up by 40% automatically.',         color: 'rgba(14,165,233,0.10)',  border: 'rgba(14,165,233,0.28)', iconColor: '#38bdf8' },
@@ -424,14 +463,14 @@ export default function LandingPage() {
           const mod = modules.find(m => m.id === activeModule);
           const Icon = mod.icon;
           return (
-            <div className="glass-card" style={{ padding: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '36px', alignItems: 'center' }}>
+            <div className="glass-card feature-detail-card">
               <div>
                 <div style={{ width: '52px', height: '52px', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '20px' }}>
                   <Icon size={28} />
                 </div>
                 <h3 style={{ fontSize: '1.8rem', marginBottom: '14px' }}>{mod.title}</h3>
                 <p style={{ color: '#9ca3af', fontSize: '1rem', marginBottom: '24px' }}>{mod.desc}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div className="feature-points-grid">
                   {mod.points.map((pt, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', color: '#f9fafb' }}>
                       <CheckCircle2 size={16} color="#10b981" /> {pt}
@@ -732,7 +771,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(5, 8, 17, 0.95)', padding: '48px 0 24px', position: 'relative', zIndex: 1 }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '32px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="container landing-footer-row">
           <div className="brand-logo">
             <div className="brand-icon"><Dumbbell size={20} /></div>
             <span>EasyGym Software Pro</span>
