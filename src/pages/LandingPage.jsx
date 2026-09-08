@@ -132,11 +132,35 @@ export default function LandingPage() {
     }
   ];
 
+  useEffect(() => {
+    document.title = "EasyGym - #1 Best Free Gym Management Software | Biometric & WhatsApp";
+  }, []);
+
   const faqs = [
-    { q: 'Does EasyGym Software work with fingerprint scanners and facial recognition hardware?', a: 'Yes! EasyGym Pro seamlessly connects with all major biometric turnstile gates, fingerprint scanners (ZKTeco, Starlink), and 3D facial cameras over TCP/IP LAN.' },
-    { q: 'How does WhatsApp automation work?', a: 'Our software automatically sends automated WhatsApp messages to members when their plan is expiring in 7 days, on their birthday, or when dues are pending.' },
-    { q: 'Can I manage multiple gym branches from a single admin panel?', a: 'Absolutely. The multi-branch enterprise plan allows you to switch between branches, compare revenue, and unify member databases across cities.' },
-    { q: 'Is GST billing compliant for tax filing?', a: 'Yes, all invoices generated in the POS and membership modules are 100% GST-compliant with itemized tax breakdowns and exportable Excel reports.' }
+    {
+      q: 'Is EasyGym really a 100% free gym management software?',
+      a: 'Yes! Abhi ke liye EasyGym sabhi gym owners ke liye 100% Free hai. Aap unlimited gym members register kar sakte hain, biometric attendance track kar sakte hain, GST billing kar sakte hain aur complete gym operations run kar sakte hain bina kisi upfront subscription ya hidden charges ke.'
+    },
+    {
+      q: 'How do I get started with this free gym software?',
+      a: 'Getting started takes less than 30 seconds. Simply click on "Start 100% Free Now" or "Open Admin Portal" to immediately set up your gym profile, add active members, and start generating GST invoices without entering any credit card.'
+    },
+    {
+      q: 'Does EasyGym free software work with biometric fingerprint scanners and facial turnstiles?',
+      a: 'Yes! EasyGym seamlessly connects with all major biometric turnstile gates, fingerprint scanners (ZKTeco, Starlink, Mantra), RFID readers, and 3D facial cameras over TCP/IP LAN to automatically lock expired members out.'
+    },
+    {
+      q: 'How does automated WhatsApp renewal reminders work?',
+      a: 'Our software automatically sends personalized WhatsApp messages to members when their plan is expiring in 7 days, on their birthday, or when dues are pending, boosting retention by up to 40%.'
+    },
+    {
+      q: 'Can I manage multiple gym branches from a single admin panel?',
+      a: 'Absolutely. The multi-branch enterprise panel allows you to switch between branches, compare revenue, and unify member databases across cities.'
+    },
+    {
+      q: 'Is GST billing compliant for tax filing?',
+      a: 'Yes, all invoices generated in the POS and membership modules are 100% GST-compliant with itemized tax breakdowns and exportable Excel reports.'
+    }
   ];
 
   return (
@@ -251,15 +275,15 @@ export default function LandingPage() {
         <div className="container hero-grid">
           <div>
             <div className="hero-badge">
-              <Sparkles size={14} /> #1 Rated All-In-One Gym Management Platform
+              <Sparkles size={14} /> #1 Free Gym Management Software in India
             </div>
 
             <h1 className="hero-title">
-              Streamline Gym Operations with <span className="gradient-text">Biometric & WhatsApp</span> Automation
+              India's #1 <span className="gradient-text">Free Gym Management Software</span> with Biometric & WhatsApp
             </h1>
 
             <p className="hero-desc">
-              Eliminate manual registers, block expired members automatically at turnstile gates, automate WhatsApp renewals, and boost revenue with GST POS billing.
+              Looking for 100% free gym management software? Eliminate manual registers, block expired members automatically at turnstile gates, automate WhatsApp renewals, and boost revenue with GST POS billing.
             </p>
 
             <div className="hero-cta-group animate-slide-up delay-200">

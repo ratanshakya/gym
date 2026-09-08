@@ -1,0 +1,18 @@
+# Robots.txt for EasyGym Software
+# Allow all search engine bots to crawl public pages
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+
+# Googlebot & Bingbot directives
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# XML Sitemap Location
+Sitemap: https://easygym.in/sitemap.xml
